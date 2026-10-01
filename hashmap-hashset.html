@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HashMap / HashSet DSA Tracker</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #0f1117;
+    color: #e6e6e6;
+    margin: 0;
+    padding: 24px;
+  }
+  h1 {
+    text-align: center;
+    color: #43cea2;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .progress-wrap {
+    max-width: 700px;
+    margin: 0 auto 24px auto;
+    background: #1b1e29;
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #ccc;
+  }
+  .bar-bg {
+    background: #2a2d3a;
+    border-radius: 8px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    background: linear-gradient(90deg,#1f8a70,#43cea2);
+    height: 100%;
+    width: 0%;
+    transition: width .3s ease;
+  }
+  .tier {
+    max-width: 700px;
+    margin: 0 auto 18px auto;
+    background: #1b1e29;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .tier-header {
+    padding: 12px 18px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .tier-1 .tier-header { background: #1f3a2a; color: #7fdba3; }
+  .tier-2 .tier-header { background: #1f2f3a; color: #7fc8ff; }
+  .tier-3 .tier-header { background: #3a2f1f; color: #ffc36b; }
+  .tier-4 .tier-header { background: #2a1f3a; color: #c98bff; }
+  .tier-5 .tier-header { background: #3a1f2a; color: #ff8bb3; }
+  .tier-count {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+  .questions {
+    padding: 6px 0;
+  }
+  .q-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 18px;
+    border-bottom: 1px solid #262a38;
+    font-size: 14px;
+    transition: background .2s;
+  }
+  .q-item:last-child { border-bottom: none; }
+  .q-item:hover { background: #20232f; }
+  .q-item input {
+    margin-right: 12px;
+    width: 17px;
+    height: 17px;
+    accent-color: #43cea2;
+    cursor: pointer;
+  }
+  .q-item label {
+    cursor: pointer;
+    flex: 1;
+  }
+  .q-item.done label {
+    text-decoration: line-through;
+    color: #666;
+  }
+  .link {
+    font-size: 12px;
+    color: #43cea2;
+    text-decoration: none;
+    margin-left: 8px;
+    white-space: nowrap;
+  }
+  .link:hover { text-decoration: underline; }
+  .collapsed .questions { display: none; }
+  .arrow {
+    transition: transform .2s;
+    display: inline-block;
+  }
+  .collapsed .arrow {
+    transform: rotate(-90deg);
+  }
+  .reset-btn {
+    display: block;
+    margin: 24px auto 0 auto;
+    background: #2a2d3a;
+    color: #ccc;
+    border: 1px solid #444;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .reset-btn:hover { background: #3a3d4a; }
+</style>
+</head>
+<body>
+
+<h1>HashMap / HashSet — Interview Tracker</h1>
+<p class="subtitle">Hashing-mechanism LeetCode questions (HashMap & HashSet), tier-wise</p>
+
+<div class="progress-wrap">
+  <div class="progress-text">
+    <span>Progress</span>
+    <span id="progress-label">0 / 0</span>
+  </div>
+  <div class="bar-bg"><div class="bar-fill" id="bar-fill"></div></div>
+</div>
+
+<div id="tracker"></div>
+
+<button class="reset-btn" onclick="resetAll()">Reset Progress</button>
+
+<script>
+const data = [
+  {
+    tier: "Tier 1 - Must Do",
+    cls: "tier-1",
+    questions: [
+      ["1. Two Sum", "https://leetcode.com/problems/two-sum/"],
+      ["217. Contains Duplicate", "https://leetcode.com/problems/contains-duplicate/"],
+      ["242. Valid Anagram", "https://leetcode.com/problems/valid-anagram/"],
+      ["49. Group Anagrams", "https://leetcode.com/problems/group-anagrams/"],
+      ["387. First Unique Character in a String", "https://leetcode.com/problems/first-unique-character-in-a-string/"],
+      ["202. Happy Number", "https://leetcode.com/problems/happy-number/"],
+      ["383. Ransom Note", "https://leetcode.com/problems/ransom-note/"]
+    ]
+  },
+  {
+    tier: "Tier 2 - Frequently Asked",
+    cls: "tier-2",
+    questions: [
+      ["128. Longest Consecutive Sequence", "https://leetcode.com/problems/longest-consecutive-sequence/"],
+      ["560. Subarray Sum Equals K", "https://leetcode.com/problems/subarray-sum-equals-k/"],
+      ["349. Intersection of Two Arrays", "https://leetcode.com/problems/intersection-of-two-arrays/"],
+      ["350. Intersection of Two Arrays II", "https://leetcode.com/problems/intersection-of-two-arrays-ii/"],
+      ["170. Two Sum III - Data Structure Design", "https://leetcode.com/problems/two-sum-iii-data-structure-design/"],
+      ["205. Isomorphic Strings", "https://leetcode.com/problems/isomorphic-strings/"],
+      ["3. Longest Substring Without Repeating Characters", "https://leetcode.com/problems/longest-substring-without-repeating-characters/"]
+    ]
+  },
+  {
+    tier: "Tier 3 - Good to Know",
+    cls: "tier-3",
+    questions: [
+      ["146. LRU Cache (HashMap + Doubly LinkedList)", "https://leetcode.com/problems/lru-cache/"],
+      ["138. Copy List with Random Pointer", "https://leetcode.com/problems/copy-list-with-random-pointer/"],
+      ["380. Insert Delete GetRandom O(1)", "https://leetcode.com/problems/insert-delete-getrandom-o1/"],
+      ["599. Minimum Index Sum of Two Lists", "https://leetcode.com/problems/minimum-index-sum-of-two-lists/"],
+      ["1207. Unique Number of Occurrences", "https://leetcode.com/problems/unique-number-of-occurrences/"],
+      ["454. 4Sum II", "https://leetcode.com/problems/4sum-ii/"],
+      ["451. Sort Characters By Frequency", "https://leetcode.com/problems/sort-characters-by-frequency/"]
+    ]
+  },
+  {
+    tier: "Tier 4 - Sliding Window + Design",
+    cls: "tier-4",
+    questions: [
+      ["76. Minimum Window Substring", "https://leetcode.com/problems/minimum-window-substring/"],
+      ["438. Find All Anagrams in a String", "https://leetcode.com/problems/find-all-anagrams-in-a-string/"],
+      ["567. Permutation in String", "https://leetcode.com/problems/permutation-in-string/"],
+      ["705. Design HashSet", "https://leetcode.com/problems/design-hashset/"],
+      ["706. Design HashMap", "https://leetcode.com/problems/design-hashmap/"],
+      ["981. Time Based Key-Value Store", "https://leetcode.com/problems/time-based-key-value-store/"],
+      ["432. All O`one Data Structure", "https://leetcode.com/problems/all-oone-data-structure/"]
+    ]
+  },
+  {
+    tier: "Concept-Based (No LeetCode number)",
+    cls: "tier-5",
+    questions: [
+      ["Implement a HashMap from scratch (array + linked list buckets)", ""],
+      ["Implement a HashSet from scratch (using array of buckets)", ""],
+      ["Handle collisions: chaining vs open addressing (concept + code)", ""],
+      ["Explain load factor and rehashing in HashMap (concept)", ""],
+      ["Write a custom hashCode() and equals() for an object used as a HashMap key", ""],
+      ["Detect Cycle in a Linked List using HashSet", "https://leetcode.com/problems/linked-list-cycle/"],
+      ["Find first non-repeating character in a stream using HashMap (GFG)", "https://www.geeksforgeeks.org/find-first-non-repeating-character-stream-characters/"],
+      ["HashMap vs TreeMap vs LinkedHashMap (concept comparison)", ""]
+    ]
+  }
+];
+
+const STORAGE_KEY = "hashmap_hashset_tracker_progress_v1";
+
+function loadProgress() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch { return {}; }
+}
+
+function saveProgress(progress) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+
+function render() {
+  const progress = loadProgress();
+  const container = document.getElementById("tracker");
+  container.innerHTML = "";
+  let total = 0, done = 0;
+
+  data.forEach((tierData, tIdx) => {
+    total += tierData.questions.length;
+    const tierDiv = document.createElement("div");
+    tierDiv.className = "tier " + tierData.cls;
+
+    const doneInTier = tierData.questions.filter((_, qIdx) => progress[tIdx+"-"+qIdx]).length;
+    done += doneInTier;
+
+    const header = document.createElement("div");
+    header.className = "tier-header";
+    header.innerHTML = `<span><span class="arrow">▼</span> ${tierData.tier}</span><span class="tier-count">${doneInTier}/${tierData.questions.length}</span>`;
+    header.onclick = () => tierDiv.classList.toggle("collapsed");
+
+    const qWrap = document.createElement("div");
+    qWrap.className = "questions";
+
+    tierData.questions.forEach((q, qIdx) => {
+      const key = tIdx + "-" + qIdx;
+      const isDone = !!progress[key];
+      const item = document.createElement("div");
+      item.className = "q-item" + (isDone ? " done" : "");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = isDone;
+      checkbox.onchange = () => {
+        const p = loadProgress();
+        p[key] = checkbox.checked;
+        saveProgress(p);
+        render();
+      };
+
+      const label = document.createElement("label");
+      label.textContent = q[0];
+
+      item.appendChild(checkbox);
+      item.appendChild(label);
+
+      if (q[1]) {
+        const a = document.createElement("a");
+        a.href = q[1];
+        a.target = "_blank";
+        a.className = "link";
+        a.textContent = "Open";
+        item.appendChild(a);
+      }
+
+      qWrap.appendChild(item);
+    });
+
+    tierDiv.appendChild(header);
+    tierDiv.appendChild(qWrap);
+    container.appendChild(tierDiv);
+  });
+
+  document.getElementById("progress-label").textContent = `${done} / ${total}`;
+  document.getElementById("bar-fill").style.width = total ? (done/total*100) + "%" : "0%";
+}
+
+function resetAll() {
+  if (confirm("Reset all progress?")) {
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>

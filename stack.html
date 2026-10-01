@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stack DSA Tracker</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #0f1117;
+    color: #e6e6e6;
+    margin: 0;
+    padding: 24px;
+  }
+  h1 {
+    text-align: center;
+    color: #ffb86c;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .progress-wrap {
+    max-width: 700px;
+    margin: 0 auto 24px auto;
+    background: #1b1e29;
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #ccc;
+  }
+  .bar-bg {
+    background: #2a2d3a;
+    border-radius: 8px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    background: linear-gradient(90deg,#ff7e5f,#feb47b);
+    height: 100%;
+    width: 0%;
+    transition: width .3s ease;
+  }
+  .tier {
+    max-width: 700px;
+    margin: 0 auto 18px auto;
+    background: #1b1e29;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .tier-header {
+    padding: 12px 18px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .tier-1 .tier-header { background: #3a1f1f; color: #ff8a8a; }
+  .tier-2 .tier-header { background: #3a2f1f; color: #ffc36b; }
+  .tier-3 .tier-header { background: #1f3a2a; color: #7fdba3; }
+  .tier-4 .tier-header { background: #1f2a3a; color: #7fb8ff; }
+  .tier-5 .tier-header { background: #2a1f3a; color: #c98bff; }
+  .tier-count {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+  .questions {
+    padding: 6px 0;
+  }
+  .q-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 18px;
+    border-bottom: 1px solid #262a38;
+    font-size: 14px;
+    transition: background .2s;
+  }
+  .q-item:last-child { border-bottom: none; }
+  .q-item:hover { background: #20232f; }
+  .q-item input {
+    margin-right: 12px;
+    width: 17px;
+    height: 17px;
+    accent-color: #feb47b;
+    cursor: pointer;
+  }
+  .q-item label {
+    cursor: pointer;
+    flex: 1;
+  }
+  .q-item.done label {
+    text-decoration: line-through;
+    color: #666;
+  }
+  .link {
+    font-size: 12px;
+    color: #6ab0f3;
+    text-decoration: none;
+    margin-left: 8px;
+    white-space: nowrap;
+  }
+  .link:hover { text-decoration: underline; }
+  .collapsed .questions { display: none; }
+  .arrow {
+    transition: transform .2s;
+    display: inline-block;
+  }
+  .collapsed .arrow {
+    transform: rotate(-90deg);
+  }
+  .reset-btn {
+    display: block;
+    margin: 24px auto 0 auto;
+    background: #2a2d3a;
+    color: #ccc;
+    border: 1px solid #444;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .reset-btn:hover { background: #3a3d4a; }
+</style>
+</head>
+<body>
+
+<h1>📚 Stack — Interview Tracker</h1>
+<p class="subtitle">Important LeetCode stack questions, tier-wise</p>
+
+<div class="progress-wrap">
+  <div class="progress-text">
+    <span>Progress</span>
+    <span id="progress-label">0 / 0</span>
+  </div>
+  <div class="bar-bg"><div class="bar-fill" id="bar-fill"></div></div>
+</div>
+
+<div id="tracker"></div>
+
+<button class="reset-btn" onclick="resetAll()">Reset Progress</button>
+
+<script>
+const data = [
+  {
+    tier: "Tier 1 — Must Do",
+    cls: "tier-1",
+    questions: [
+      ["20. Valid Parentheses", "https://leetcode.com/problems/valid-parentheses/"],
+      ["155. Min Stack", "https://leetcode.com/problems/min-stack/"],
+      ["232. Implement Queue using Stacks", "https://leetcode.com/problems/implement-queue-using-stacks/"],
+      ["225. Implement Stack using Queues", "https://leetcode.com/problems/implement-stack-using-queues/"],
+      ["150. Evaluate Reverse Polish Notation", "https://leetcode.com/problems/evaluate-reverse-polish-notation/"],
+      ["739. Daily Temperatures", "https://leetcode.com/problems/daily-temperatures/"],
+      ["496. Next Greater Element I", "https://leetcode.com/problems/next-greater-element-i/"],
+      ["503. Next Greater Element II", "https://leetcode.com/problems/next-greater-element-ii/"]
+    ]
+  },
+  {
+    tier: "Tier 2 — Frequently Asked",
+    cls: "tier-2",
+    questions: [
+      ["42. Trapping Rain Water", "https://leetcode.com/problems/trapping-rain-water/"],
+      ["84. Largest Rectangle in Histogram", "https://leetcode.com/problems/largest-rectangle-in-histogram/"],
+      ["394. Decode String", "https://leetcode.com/problems/decode-string/"],
+      ["227. Basic Calculator II", "https://leetcode.com/problems/basic-calculator-ii/"],
+      ["224. Basic Calculator", "https://leetcode.com/problems/basic-calculator/"],
+      ["1047. Remove All Adjacent Duplicates In String", "https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/"],
+      ["735. Asteroid Collision", "https://leetcode.com/problems/asteroid-collision/"],
+      ["316. Remove Duplicate Letters", "https://leetcode.com/problems/remove-duplicate-letters/"],
+      ["402. Remove K Digits", "https://leetcode.com/problems/remove-k-digits/"]
+    ]
+  },
+  {
+    tier: "Tier 3 — Good to Know",
+    cls: "tier-3",
+    questions: [
+      ["71. Simplify Path", "https://leetcode.com/problems/simplify-path/"],
+      ["456. 132 Pattern", "https://leetcode.com/problems/132-pattern/"],
+      ["901. Online Stock Span", "https://leetcode.com/problems/online-stock-span/"],
+      ["1124. Longest Well-Performing Interval", "https://leetcode.com/problems/longest-well-performing-interval/"],
+      ["636. Exclusive Time of Functions", "https://leetcode.com/problems/exclusive-time-of-functions/"],
+      ["844. Backspace String Compare", "https://leetcode.com/problems/backspace-string-compare/"],
+      ["1209. Remove All Adjacent Duplicates in String II", "https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/"],
+      ["946. Validate Stack Sequences", "https://leetcode.com/problems/validate-stack-sequences/"]
+    ]
+  },
+  {
+    tier: "Tier 4 — Asked Sometimes (FAANG-level)",
+    cls: "tier-4",
+    questions: [
+      ["85. Maximal Rectangle", "https://leetcode.com/problems/maximal-rectangle/"],
+      ["1856. Maximum Subarray Min-Product", "https://leetcode.com/problems/maximum-subarray-min-product/"],
+      ["1190. Reverse Substrings Between Each Pair of Parentheses", "https://leetcode.com/problems/reverse-substrings-between-each-pair-of-parentheses/"],
+      ["1944. Number of Visible People in a Queue", "https://leetcode.com/problems/number-of-visible-people-in-a-queue/"],
+      ["2390. Removing Stars From a String", "https://leetcode.com/problems/removing-stars-from-a-string/"]
+    ]
+  },
+  {
+    tier: "Concept-Based (No LeetCode number)",
+    cls: "tier-5",
+    questions: [
+      ["Sort a Stack using recursion", ""],
+      ["Reverse a Stack using recursion (no extra space)", ""],
+      ["Celebrity Problem (GFG)", "https://www.geeksforgeeks.org/the-celebrity-problem/"],
+      ["Two Stacks in One Array", ""],
+      ["Implement Stack using Array (from scratch)", ""],
+      ["Implement Stack using LinkedList (from scratch)", ""]
+    ]
+  }
+];
+
+const STORAGE_KEY = "stack_tracker_progress_v1";
+
+function loadProgress() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch { return {}; }
+}
+
+function saveProgress(progress) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+
+function render() {
+  const progress = loadProgress();
+  const container = document.getElementById("tracker");
+  container.innerHTML = "";
+  let total = 0, done = 0;
+
+  data.forEach((tierData, tIdx) => {
+    total += tierData.questions.length;
+    const tierDiv = document.createElement("div");
+    tierDiv.className = "tier " + tierData.cls;
+
+    const doneInTier = tierData.questions.filter((_, qIdx) => progress[tIdx+"-"+qIdx]).length;
+    done += doneInTier;
+
+    const header = document.createElement("div");
+    header.className = "tier-header";
+    header.innerHTML = `<span><span class="arrow">▼</span> ${tierData.tier}</span><span class="tier-count">${doneInTier}/${tierData.questions.length}</span>`;
+    header.onclick = () => tierDiv.classList.toggle("collapsed");
+
+    const qWrap = document.createElement("div");
+    qWrap.className = "questions";
+
+    tierData.questions.forEach((q, qIdx) => {
+      const key = tIdx + "-" + qIdx;
+      const isDone = !!progress[key];
+      const item = document.createElement("div");
+      item.className = "q-item" + (isDone ? " done" : "");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = isDone;
+      checkbox.onchange = () => {
+        const p = loadProgress();
+        p[key] = checkbox.checked;
+        saveProgress(p);
+        render();
+      };
+
+      const label = document.createElement("label");
+      label.textContent = q[0];
+
+      item.appendChild(checkbox);
+      item.appendChild(label);
+
+      if (q[1]) {
+        const a = document.createElement("a");
+        a.href = q[1];
+        a.target = "_blank";
+        a.className = "link";
+        a.textContent = "Open ↗";
+        item.appendChild(a);
+      }
+
+      qWrap.appendChild(item);
+    });
+
+    tierDiv.appendChild(header);
+    tierDiv.appendChild(qWrap);
+    container.appendChild(tierDiv);
+  });
+
+  document.getElementById("progress-label").textContent = `${done} / ${total}`;
+  document.getElementById("bar-fill").style.width = total ? (done/total*100) + "%" : "0%";
+}
+
+function resetAll() {
+  if (confirm("Reset all progress?")) {
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>

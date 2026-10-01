@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Linked List Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --green: #3fb950;
+    --blue: #58a6ff;
+    --yellow: #d29922;
+    --red: #f85149;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 24px;
+  }
+  .window {
+    max-width: 760px;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--panel);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+  .titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #010409;
+    border-bottom: 1px solid var(--border);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r { background: #ff5f56; }
+  .dot.y { background: #ffbd2e; }
+  .dot.g { background: #27c93f; }
+  .titlebar span {
+    margin-left: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .header {
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header h1 {
+    margin: 0 0 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: #fff;
+  }
+  .header h1::before { content: "$ "; color: var(--green); }
+  .header p {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+  }
+  .bar {
+    flex: 1;
+    height: 8px;
+    background: #21262d;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--green));
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  #progress-text { color: var(--green); white-space: nowrap; }
+
+  .tier {
+    border-bottom: 1px solid var(--border);
+  }
+  .tier:last-child { border-bottom: none; }
+  .tier-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 22px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .tier-head:hover { background: rgba(255,255,255,0.02); }
+  .tier-head .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #fff;
+    font-weight: 500;
+  }
+  .tier-head .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .tier-body { padding: 0 22px 14px; display: block; }
+  .tier-body.collapsed { display: none; }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    border-top: 1px solid #21262d;
+  }
+  .row:first-child { border-top: none; }
+  .row input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--green);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .row .name {
+    flex: 1;
+    font-size: 14px;
+  }
+  .row.done .name {
+    color: var(--text-dim);
+    text-decoration: line-through;
+  }
+  .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    width: 38px;
+    flex-shrink: 0;
+  }
+  .diff {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    width: 56px;
+    text-align: center;
+  }
+  .diff.Easy { color: var(--green); background: rgba(63,185,80,0.12); }
+  .diff.Medium { color: var(--yellow); background: rgba(210,153,34,0.12); }
+  .diff.Hard { color: var(--red); background: rgba(248,81,73,0.12); }
+
+  .footer {
+    padding: 12px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+    <span>linked-list-tracker.sh</span>
+  </div>
+
+  <div class="header">
+    <h1>linked_list_prep</h1>
+    <p>21 problems · check off as you solve, the build bar fills up</p>
+    <div class="progress-row">
+      <div class="bar"><div class="bar-fill" id="bar-fill"></div></div>
+      <span id="progress-text">0 / 21</span>
+    </div>
+  </div>
+
+  <div id="tiers"></div>
+
+  <div class="footer" id="footer-note">progress is saved in your browser on this device</div>
+</div>
+
+<script>
+const data = [
+  { tier: "Tier 1 — Core", problems: [
+    ["Reverse Linked List", 206, "Easy"],
+    ["Linked List Cycle", 141, "Easy"],
+    ["Linked List Cycle II", 142, "Medium"],
+    ["Middle of the Linked List", 876, "Easy"],
+    ["Merge Two Sorted Lists", 21, "Easy"],
+    ["Remove Nth Node From End of List", 19, "Medium"],
+    ["Palindrome Linked List", 234, "Easy"],
+    ["Reverse Linked List II", 92, "Medium"],
+  ]},
+  { tier: "Tier 2 — High Frequency", problems: [
+    ["Add Two Numbers", 2, "Medium"],
+    ["Swap Nodes in Pairs", 24, "Medium"],
+    ["Remove Duplicates from Sorted List", 83, "Easy"],
+    ["Remove Duplicates from Sorted List II", 82, "Medium"],
+    ["Intersection of Two Linked Lists", 160, "Easy"],
+    ["Rotate List", 61, "Medium"],
+    ["Reorder List", 143, "Medium"],
+    ["Odd Even Linked List", 328, "Medium"],
+  ]},
+  { tier: "Tier 3 — Design / Advanced", problems: [
+    ["LRU Cache", 146, "Medium"],
+    ["Copy List with Random Pointer", 138, "Medium"],
+    ["Merge k Sorted Lists", 23, "Hard"],
+    ["Reverse Nodes in k-Group", 25, "Hard"],
+    ["Sort List", 148, "Medium"],
+  ]},
+];
+
+const totalCount = data.reduce((s, t) => s + t.problems.length, 0);
+let checked = new Set();
+try{checked=new Set(JSON.parse(localStorage.getItem('ll_done')||'[]'))}catch(e){}
+function persist(){try{localStorage.setItem('ll_done',JSON.stringify([...checked]))}catch(e){}}
+
+function render() {
+  const container = document.getElementById('tiers');
+  container.innerHTML = '';
+  data.forEach((tier, ti) => {
+    const tierEl = document.createElement('div');
+    tierEl.className = 'tier';
+
+    const doneInTier = tier.problems.filter((_, pi) => checked.has(ti + '-' + pi)).length;
+
+    const head = document.createElement('div');
+    head.className = 'tier-head';
+    head.innerHTML = `<span class="label">${tier.tier}</span><span class="count">${doneInTier}/${tier.problems.length}</span>`;
+    head.onclick = () => {
+      body.classList.toggle('collapsed');
+    };
+
+    const body = document.createElement('div');
+    body.className = 'tier-body';
+
+    tier.problems.forEach((p, pi) => {
+      const id = ti + '-' + pi;
+      const row = document.createElement('div');
+      row.className = 'row' + (checked.has(id) ? ' done' : '');
+      row.innerHTML = `
+        <input type="checkbox" ${checked.has(id) ? 'checked' : ''} data-id="${id}">
+        <span class="num">#${p[1]}</span>
+        <span class="name">${p[0]}</span>
+        <span class="diff ${p[2]}">${p[2]}</span>
+      `;
+      row.querySelector('input').addEventListener('change', (e) => {
+        if (e.target.checked) checked.add(id); else checked.delete(id);
+        persist(); render();
+      });
+      body.appendChild(row);
+    });
+
+    tierEl.appendChild(head);
+    tierEl.appendChild(body);
+    container.appendChild(tierEl);
+  });
+
+  const pct = Math.round((checked.size / totalCount) * 100);
+  document.getElementById('bar-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${checked.size} / ${totalCount}`;
+}
+
+render();
+</script>
+
+</body>
+</html>

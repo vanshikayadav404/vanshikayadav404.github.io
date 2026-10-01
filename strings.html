@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Strings DSA Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #151518;
+    --surface2: #1c1c21;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0eff5;
+    --muted: #7a7a8c;
+    --faint: #3a3a4a;
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.1);
+    --purple-border: rgba(167,139,250,0.25);
+    --green: #4ade80;
+    --green-bg: rgba(74,222,128,0.1);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.1);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.1);
+    --teal: #2dd4bf;
+    --teal-bg: rgba(45,212,191,0.08);
+    --accent: #7c3aed;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.2rem;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    z-index: 10;
+  }
+  .sidebar-brand {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 2rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .sidebar-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin: 1.2rem 0 0.5rem; font-family: 'JetBrains Mono', monospace; }
+  .sidebar-link {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 10px; border-radius: 8px; cursor: pointer;
+    font-size: 13px; color: var(--muted);
+    transition: all 0.15s; border: none; background: none; width: 100%; text-align: left;
+    gap: 6px;
+  }
+  .sidebar-link:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-link.active { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+  .sidebar-link .cnt {
+    font-size: 11px; background: var(--surface2); border-radius: 20px;
+    padding: 1px 7px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
+  }
+  .sidebar-link.active .cnt { background: var(--purple-bg); color: var(--purple); }
+  .sidebar-progress { margin-top: auto; padding-top: 2rem; }
+  .sidebar-progress-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+  .prog-track { height: 4px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .prog-fill { height: 100%; background: var(--purple); border-radius: 4px; transition: width 0.5s; }
+  .prog-pct { font-size: 22px; font-weight: 700; color: var(--purple); margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
+
+  .main { margin-left: 240px; flex: 1; padding: 2.5rem 2.5rem 4rem; max-width: calc(100vw - 240px); }
+
+  .page-title { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .page-sub { font-size: 14px; color: var(--muted); margin-bottom: 2rem; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 2rem; }
+  .stat-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+  }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
+  .stat-val { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .stat-val.done { color: var(--green); }
+  .stat-val.easy { color: var(--green); }
+  .stat-val.med { color: var(--amber); }
+  .stat-val.hard { color: var(--red); }
+  .stat-val.total { color: var(--purple); }
+
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 1.8rem; }
+  .search {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 8px 14px; font-size: 13px;
+    color: var(--text); outline: none; font-family: 'Syne', sans-serif;
+    min-width: 220px;
+    transition: border-color 0.15s;
+  }
+  .search:focus { border-color: var(--purple); }
+  .search::placeholder { color: var(--muted); }
+  .fbtn {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 14px; font-size: 12px;
+    color: var(--muted); cursor: pointer; font-family: 'Syne', sans-serif;
+    transition: all 0.15s; font-weight: 500;
+  }
+  .fbtn:hover { border-color: var(--border2); color: var(--text); }
+  .fbtn.active { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple); }
+
+  .topic-group { margin-bottom: 2rem; }
+  .topic-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .topic-name { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .topic-badge { font-size: 11px; background: var(--surface2); border-radius: 20px; padding: 2px 9px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .topic-interview { font-size: 11px; background: var(--teal-bg); border: 1px solid rgba(45,212,191,0.2); border-radius: 20px; padding: 2px 9px; color: var(--teal); margin-left: auto; }
+
+  .q-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    transition: background 0.12s; border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .q-row:last-child { border-bottom: none; }
+  .q-row:hover { background: var(--surface2); }
+  .q-row.done { opacity: 0.45; }
+  .q-row.done .q-name { text-decoration: line-through; }
+
+  .chk {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid var(--faint); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .q-row.done .chk { background: var(--green); border-color: var(--green); }
+  .chk svg { display: none; }
+  .q-row.done .chk svg { display: block; }
+
+  .q-num { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; min-width: 42px; }
+  .q-name { font-size: 14px; flex: 1; font-weight: 500; }
+  .q-pat {
+    font-size: 11px; padding: 3px 9px; border-radius: 20px;
+    background: var(--purple-bg); color: var(--purple);
+    border: 1px solid var(--purple-border); flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .diff-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+  .E { background: var(--green-bg); color: var(--green); }
+  .M { background: var(--amber-bg); color: var(--amber); }
+  .H { background: var(--red-bg); color: var(--red); }
+  .must-tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: rgba(251,191,36,0.15); color: var(--amber); border: 1px solid rgba(251,191,36,0.25); flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+  .lc-a { font-size: 12px; color: var(--muted); flex-shrink: 0; transition: color 0.1s; }
+  .lc-a:hover { color: var(--purple); }
+
+  .empty { font-size: 14px; color: var(--muted); padding: 2rem 0; text-align: center; font-family: 'JetBrains Mono', monospace; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">// strings.dsa</div>
+
+  <div class="sidebar-section">topics</div>
+  <button class="sidebar-link active" onclick="filterTopic('all',this)">All Topics <span class="cnt" id="cnt-all">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('Character Arrays',this)">Character Arrays <span class="cnt" id="cnt-0">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('StringBuilder',this)">StringBuilder <span class="cnt" id="cnt-1">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('Frequency Count',this)">Frequency Count <span class="cnt" id="cnt-2">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('Palindrome Check',this)">Palindrome Check <span class="cnt" id="cnt-3">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('Two Pointers',this)">Two Pointers <span class="cnt" id="cnt-4">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('KMP Algorithm',this)">KMP Algorithm <span class="cnt" id="cnt-5">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('Rabin Karp',this)">Rabin Karp <span class="cnt" id="cnt-6">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('Z Algorithm',this)">Z Algorithm <span class="cnt" id="cnt-7">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('Pattern Matching',this)">Pattern Matching <span class="cnt" id="cnt-8">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('Minimum Window Substring',this)">Min Window Sub <span class="cnt" id="cnt-9">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('Stack + String',this)">Stack + String <span class="cnt" id="cnt-10">0</span></button>
+  <button class="sidebar-link" onclick="filterTopic('DP on Strings',this)">DP on Strings <span class="cnt" id="cnt-11">0</span></button>
+
+  <div class="sidebar-progress">
+    <div class="sidebar-progress-label">overall progress</div>
+    <div class="prog-track"><div class="prog-fill" id="side-prog" style="width:0%"></div></div>
+    <div class="prog-pct" id="side-pct">0%</div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-title">Strings — DSA Tracker</div>
+  <div class="page-sub">Complete interview preparation · All patterns covered · Click to mark done</div>
+
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-label">Total</div><div class="stat-val total" id="s-total">0</div></div>
+    <div class="stat-box"><div class="stat-label">Done</div><div class="stat-val done" id="s-done">0</div></div>
+    <div class="stat-box"><div class="stat-label">Easy</div><div class="stat-val easy" id="s-easy">0</div></div>
+    <div class="stat-box"><div class="stat-label">Medium</div><div class="stat-val med" id="s-med">0</div></div>
+    <div class="stat-box"><div class="stat-label">Hard</div><div class="stat-val hard" id="s-hard">0</div></div>
+  </div>
+
+  <div class="filter-bar">
+    <input class="search" id="search-in" placeholder="🔍  search problems..." oninput="render()" />
+    <button class="fbtn active" onclick="filterDiff('all',this)">All</button>
+    <button class="fbtn" onclick="filterDiff('E',this)">Easy</button>
+    <button class="fbtn" onclick="filterDiff('M',this)">Medium</button>
+    <button class="fbtn" onclick="filterDiff('H',this)">Hard</button>
+    <button class="fbtn" onclick="filterMust(this)" id="must-btn">⭐ Must-Solve</button>
+  </div>
+
+  <div id="list"></div>
+</main>
+</div>
+
+<script>
+const PROBLEMS = [
+  {id:1,  lc:344,  name:"Reverse String",                            diff:"E", topic:"Character Arrays",         pat:"Two Pointers",           must:false},
+  {id:2,  lc:541,  name:"Reverse String II",                         diff:"E", topic:"Character Arrays",         pat:"Two Pointers",           must:false},
+  {id:3,  lc:557,  name:"Reverse Words in a String III",             diff:"E", topic:"Character Arrays",         pat:"Two Pointers",           must:false},
+  {id:4,  lc:151,  name:"Reverse Words in a String",                 diff:"M", topic:"Character Arrays",         pat:"Two Pointers",           must:false},
+  {id:5,  lc:58,   name:"Length of Last Word",                       diff:"E", topic:"Character Arrays",         pat:"Traversal",              must:false},
+  {id:6,  lc:14,   name:"Longest Common Prefix",                     diff:"E", topic:"Character Arrays",         pat:"Traversal",              must:true},
+  {id:7,  lc:8,    name:"String to Integer (atoi)",                  diff:"M", topic:"StringBuilder",            pat:"Parsing",                must:true},
+  {id:8,  lc:6,    name:"Zigzag Conversion",                         diff:"M", topic:"StringBuilder",            pat:"Simulation",             must:false},
+  {id:9,  lc:443,  name:"String Compression",                        diff:"M", topic:"StringBuilder",            pat:"Two Pointers",           must:true},
+  {id:10, lc:38,   name:"Count and Say",                             diff:"M", topic:"StringBuilder",            pat:"Simulation",             must:false},
+  {id:11, lc:271,  name:"Encode and Decode Strings",                 diff:"M", topic:"StringBuilder",            pat:"Encoding",               must:true},
+  {id:12, lc:1268, name:"Search Suggestions System",                 diff:"M", topic:"StringBuilder",            pat:"Trie / Sorting",         must:false},
+  {id:13, lc:12,   name:"Integer to Roman",                          diff:"M", topic:"StringBuilder",            pat:"Greedy / Simulation",    must:true},
+  {id:14, lc:13,   name:"Roman to Integer",                          diff:"E", topic:"StringBuilder",            pat:"HashMap",                must:true},
+  {id:15, lc:171,  name:"Excel Sheet Column Number",                 diff:"E", topic:"StringBuilder",            pat:"Math",                   must:false},
+  {id:16, lc:383,  name:"Ransom Note",                               diff:"E", topic:"Frequency Count",          pat:"Frequency",              must:false},
+  {id:17, lc:242,  name:"Valid Anagram",                             diff:"E", topic:"Frequency Count",          pat:"Frequency",              must:true},
+  {id:18, lc:387,  name:"First Unique Character in a String",        diff:"E", topic:"Frequency Count",          pat:"Frequency",              must:true},
+  {id:19, lc:49,   name:"Group Anagrams",                            diff:"M", topic:"Frequency Count",          pat:"Frequency + HashMap",    must:true},
+  {id:20, lc:438,  name:"Find All Anagrams in a String",             diff:"M", topic:"Frequency Count",          pat:"Sliding Window + Freq",  must:true},
+  {id:21, lc:567,  name:"Permutation in String",                     diff:"M", topic:"Frequency Count",          pat:"Sliding Window + Freq",  must:true},
+  {id:22, lc:451,  name:"Sort Characters By Frequency",              diff:"M", topic:"Frequency Count",          pat:"Bucket Sort",            must:false},
+  {id:23, lc:884,  name:"Uncommon Words from Two Sentences",         diff:"E", topic:"Frequency Count",          pat:"Frequency",              must:false},
+  {id:24, lc:9,    name:"Palindrome Number",                         diff:"E", topic:"Palindrome Check",         pat:"Math",                   must:false},
+  {id:25, lc:125,  name:"Valid Palindrome",                          diff:"E", topic:"Palindrome Check",         pat:"Two Pointers",           must:true},
+  {id:26, lc:680,  name:"Valid Palindrome II",                       diff:"E", topic:"Palindrome Check",         pat:"Two Pointers",           must:true},
+  {id:27, lc:5,    name:"Longest Palindromic Substring",             diff:"M", topic:"Palindrome Check",         pat:"Expand Around Center",   must:true},
+  {id:28, lc:647,  name:"Palindromic Substrings",                    diff:"M", topic:"Palindrome Check",         pat:"Expand Around Center",   must:true},
+  {id:29, lc:214,  name:"Shortest Palindrome",                       diff:"H", topic:"Palindrome Check",         pat:"KMP",                    must:false},
+  {id:30, lc:336,  name:"Palindrome Pairs",                          diff:"H", topic:"Palindrome Check",         pat:"HashMap",                must:false},
+  {id:31, lc:234,  name:"Palindrome Linked List",                    diff:"E", topic:"Palindrome Check",         pat:"Two Pointers",           must:false},
+  {id:32, lc:167,  name:"Two Sum II",                                diff:"M", topic:"Two Pointers",             pat:"Two Pointers",           must:true},
+  {id:33, lc:11,   name:"Container With Most Water",                 diff:"M", topic:"Two Pointers",             pat:"Two Pointers",           must:true},
+  {id:34, lc:42,   name:"Trapping Rain Water",                       diff:"H", topic:"Two Pointers",             pat:"Two Pointers",           must:true},
+  {id:35, lc:88,   name:"Merge Sorted Array",                        diff:"E", topic:"Two Pointers",             pat:"Two Pointers",           must:true},
+  {id:36, lc:977,  name:"Squares of a Sorted Array",                 diff:"E", topic:"Two Pointers",             pat:"Two Pointers",           must:false},
+  {id:37, lc:15,   name:"3Sum",                                      diff:"M", topic:"Two Pointers",             pat:"Two Pointers + Sort",    must:true},
+  {id:38, lc:16,   name:"3Sum Closest",                              diff:"M", topic:"Two Pointers",             pat:"Two Pointers + Sort",    must:false},
+  {id:39, lc:28,   name:"Find the Index of First Occurrence",        diff:"E", topic:"KMP Algorithm",            pat:"KMP / Pattern Match",    must:true},
+  {id:40, lc:459,  name:"Repeated Substring Pattern",                diff:"E", topic:"KMP Algorithm",            pat:"KMP",                    must:true},
+  {id:41, lc:214,  name:"Shortest Palindrome (KMP)",                 diff:"H", topic:"KMP Algorithm",            pat:"KMP",                    must:false},
+  {id:42, lc:686,  name:"Repeated String Match",                     diff:"M", topic:"KMP Algorithm",            pat:"KMP",                    must:false},
+  {id:43, lc:1392, name:"Longest Happy Prefix",                      diff:"H", topic:"KMP Algorithm",            pat:"KMP (LPS Array)",        must:false},
+  {id:44, lc:187,  name:"Repeated DNA Sequences",                    diff:"M", topic:"Rabin Karp",               pat:"Rolling Hash",           must:true},
+  {id:45, lc:1044, name:"Longest Duplicate Substring",               diff:"H", topic:"Rabin Karp",               pat:"Rolling Hash + BinSrch", must:false},
+  {id:46, lc:718,  name:"Maximum Length of Repeated Subarray",       diff:"M", topic:"Rabin Karp",               pat:"Rolling Hash / DP",      must:false},
+  {id:47, lc:459,  name:"Repeated Substring Pattern (Z)",            diff:"E", topic:"Z Algorithm",              pat:"Z Array",                must:false},
+  {id:48, lc:28,   name:"Find Index of First Occurrence (Z)",        diff:"E", topic:"Z Algorithm",              pat:"Z Array",                must:false},
+  {id:49, lc:1392, name:"Longest Happy Prefix (Z)",                  diff:"H", topic:"Z Algorithm",              pat:"Z Array / KMP",          must:false},
+  {id:50, lc:44,   name:"Wildcard Matching",                         diff:"H", topic:"Pattern Matching",         pat:"DP / Two Pointers",      must:true},
+  {id:51, lc:10,   name:"Regular Expression Matching",               diff:"H", topic:"Pattern Matching",         pat:"DP",                     must:true},
+  {id:52, lc:1023, name:"Camelcase Matching",                        diff:"M", topic:"Pattern Matching",         pat:"Two Pointers",           must:false},
+  {id:53, lc:468,  name:"Validate IP Address",                       diff:"M", topic:"Pattern Matching",         pat:"Pattern Matching",       must:false},
+  {id:54, lc:65,   name:"Valid Number",                              diff:"H", topic:"Pattern Matching",         pat:"FSM",                    must:false},
+  {id:55, lc:76,   name:"Minimum Window Substring",                  diff:"H", topic:"Minimum Window Substring", pat:"Sliding Window + Freq",  must:true},
+  {id:56, lc:727,  name:"Minimum Window Subsequence",                diff:"H", topic:"Minimum Window Substring", pat:"Sliding Window",         must:false},
+  {id:57, lc:159,  name:"Longest Substring with At Most 2 Distinct", diff:"M", topic:"Minimum Window Substring", pat:"Sliding Window",         must:true},
+  {id:58, lc:340,  name:"Longest Substring with At Most K Distinct", diff:"M", topic:"Minimum Window Substring", pat:"Sliding Window",         must:true},
+  {id:59, lc:3,    name:"Longest Substring Without Repeating Chars", diff:"M", topic:"Minimum Window Substring", pat:"Sliding Window",         must:true},
+  {id:60, lc:30,   name:"Substring with Concatenation of All Words", diff:"H", topic:"Minimum Window Substring", pat:"Sliding Window + Map",   must:false},
+  {id:61, lc:20,   name:"Valid Parentheses",                         diff:"E", topic:"Stack + String",           pat:"Stack",                  must:true},
+  {id:62, lc:394,  name:"Decode String",                             diff:"M", topic:"Stack + String",           pat:"Stack",                  must:true},
+  {id:63, lc:22,   name:"Generate Parentheses",                      diff:"M", topic:"Stack + String",           pat:"Backtracking",           must:true},
+  {id:64, lc:32,   name:"Longest Valid Parentheses",                 diff:"H", topic:"Stack + String",           pat:"Stack / DP",             must:true},
+  {id:65, lc:1249, name:"Minimum Remove to Make Valid Parentheses",  diff:"M", topic:"Stack + String",           pat:"Stack",                  must:true},
+  {id:66, lc:844,  name:"Backspace String Compare",                  diff:"E", topic:"Stack + String",           pat:"Stack / Two Pointers",   must:true},
+  {id:67, lc:71,   name:"Simplify Path",                             diff:"M", topic:"Stack + String",           pat:"Stack",                  must:false},
+  {id:68, lc:856,  name:"Score of Parentheses",                      diff:"M", topic:"Stack + String",           pat:"Stack",                  must:false},
+  {id:69, lc:72,   name:"Edit Distance",                             diff:"H", topic:"DP on Strings",            pat:"2D DP",                  must:true},
+  {id:70, lc:1143, name:"Longest Common Subsequence",                diff:"M", topic:"DP on Strings",            pat:"2D DP",                  must:true},
+  {id:71, lc:516,  name:"Longest Palindromic Subsequence",           diff:"M", topic:"DP on Strings",            pat:"2D DP",                  must:true},
+  {id:72, lc:115,  name:"Distinct Subsequences",                     diff:"H", topic:"DP on Strings",            pat:"2D DP",                  must:true},
+  {id:73, lc:97,   name:"Interleaving String",                       diff:"M", topic:"DP on Strings",            pat:"2D DP",                  must:true},
+  {id:74, lc:583,  name:"Delete Operation for Two Strings",          diff:"M", topic:"DP on Strings",            pat:"2D DP (LCS)",            must:false},
+  {id:75, lc:712,  name:"Minimum ASCII Delete Sum for Two Strings",  diff:"M", topic:"DP on Strings",            pat:"2D DP",                  must:false},
+  {id:76, lc:1092, name:"Shortest Common Supersequence",             diff:"H", topic:"DP on Strings",            pat:"2D DP",                  must:false},
+  {id:77, lc:139,  name:"Word Break",                                diff:"M", topic:"DP on Strings",            pat:"1D DP + HashSet",        must:true},
+  {id:78, lc:140,  name:"Word Break II",                             diff:"H", topic:"DP on Strings",            pat:"Backtracking + Memo",    must:false},
+];
+
+const TOPIC_ORDER = [
+  "Character Arrays","StringBuilder","Frequency Count","Palindrome Check",
+  "Two Pointers","KMP Algorithm","Rabin Karp","Z Algorithm",
+  "Pattern Matching","Minimum Window Substring","Stack + String","DP on Strings"
+];
+
+const TOPIC_INTERVIEW = {
+  "Character Arrays":"Warm-up","StringBuilder":"Common","Frequency Count":"Very Common",
+  "Palindrome Check":"Common","Two Pointers":"Very Common","KMP Algorithm":"Theory / CP",
+  "Rabin Karp":"Theory / CP","Z Algorithm":"Theory / CP","Pattern Matching":"Occasionally Asked",
+  "Minimum Window Substring":"Very Common","Stack + String":"Very Common","DP on Strings":"FAANG Must"
+};
+
+const UNIQUE = [...new Map(PROBLEMS.map(p => [p.topic+':'+p.lc, p])).values()];
+
+let done = new Set();
+try { done = new Set(JSON.parse(localStorage.getItem('strings_done')||'[]')); } catch(e){}
+let diffF = 'all', topicF = 'all', mustF = false;
+
+function save() { try { localStorage.setItem('strings_done', JSON.stringify([...done])); } catch(e){} }
+function toggle(id) { if(done.has(id)) done.delete(id); else done.add(id); save(); render(); }
+
+function filterDiff(v, btn) {
+  diffF = v;
+  document.querySelectorAll('.filter-bar .fbtn').forEach(b => { if(['All','Easy','Medium','Hard'].includes(b.textContent.trim())) b.classList.remove('active'); });
+  btn.classList.add('active'); render();
+}
+function filterTopic(v, btn) {
+  topicF = v;
+  document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); render();
+}
+function filterMust(btn) { mustF = !mustF; btn.classList.toggle('active', mustF); render(); }
+
+function render() {
+  const q = document.getElementById('search-in').value.toLowerCase();
+  let filtered = UNIQUE.filter(p => {
+    if(diffF !== 'all' && p.diff !== diffF) return false;
+    if(topicF !== 'all' && p.topic !== topicF) return false;
+    if(mustF && !p.must) return false;
+    if(q && !p.name.toLowerCase().includes(q) && !String(p.lc).includes(q) && !p.pat.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById('s-total').textContent = UNIQUE.length;
+  const doneCount = UNIQUE.filter(p => done.has(p.id)).length;
+  document.getElementById('s-done').textContent = doneCount;
+  document.getElementById('s-easy').textContent = UNIQUE.filter(p=>p.diff==='E').length;
+  document.getElementById('s-med').textContent = UNIQUE.filter(p=>p.diff==='M').length;
+  document.getElementById('s-hard').textContent = UNIQUE.filter(p=>p.diff==='H').length;
+  const pct = UNIQUE.length ? Math.round(doneCount/UNIQUE.length*100) : 0;
+  document.getElementById('side-prog').style.width = pct+'%';
+  document.getElementById('side-pct').textContent = pct+'%';
+
+  document.getElementById('cnt-all').textContent = UNIQUE.length;
+  TOPIC_ORDER.forEach((t,i) => { const el = document.getElementById('cnt-'+i); if(el) el.textContent = UNIQUE.filter(p=>p.topic===t).length; });
+
+  const el = document.getElementById('list');
+  if(!filtered.length) { el.innerHTML = '<div class="empty">// no problems match filters</div>'; return; }
+
+  const groups = {};
+  TOPIC_ORDER.forEach(t => groups[t] = []);
+  filtered.forEach(p => { if(groups[p.topic]) groups[p.topic].push(p); });
+
+  let html = '';
+  TOPIC_ORDER.forEach(topic => {
+    const qs = groups[topic];
+    if(!qs.length) return;
+    const intv = TOPIC_INTERVIEW[topic] || '';
+    html += `<div class="topic-group"><div class="topic-header"><span class="topic-name">${topic}</span><span class="topic-badge">${qs.length} problems</span>${intv?`<span class="topic-interview">${intv}</span>`:''}</div>`;
+    qs.forEach(p => {
+      const isDone = done.has(p.id);
+      const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'');
+      html += `<div class="q-row${isDone?' done':''}" onclick="toggle(${p.id})">
+        <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="q-num">#${p.lc}</span>
+        <span class="q-name">${p.name}</span>
+        ${p.must?'<span class="must-tag">⭐ must</span>':''}
+        <span class="q-pat">${p.pat}</span>
+        <span class="diff-badge ${p.diff}">${p.diff==='E'?'Easy':p.diff==='M'?'Medium':'Hard'}</span>
+        <a class="lc-a" href="https://leetcode.com/problems/${slug}/" target="_blank" onclick="event.stopPropagation()">↗ LC</a>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  el.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>

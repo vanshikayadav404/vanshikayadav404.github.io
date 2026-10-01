@@ -1,0 +1,262 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Array Tracker</title>
+<style>:root{--font-sans:"Segoe UI",Tahoma,sans-serif;--border-radius-md:8px;--border-radius-lg:12px;
+--color-background-primary:#161a1f;--color-background-secondary:#1d2228;--color-border-tertiary:#2c333b;--color-border-primary:#59626c;
+--color-text-primary:#e8eaeb;--color-text-secondary:#a3abb2;--color-text-tertiary:#7d858c;
+--color-background-success:#16301f;--color-border-success:#2f6b43;--color-text-success:#7fdba3;
+--color-background-info:#16283a;--color-text-info:#7fb8ff}
+body{margin:0;padding:20px;background:#0f1215;color:var(--color-text-primary);font-family:var(--font-sans)}
+.q-card a{text-decoration:none}</style></head><body>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem 0;font-family:var(--font-sans)}
+.top-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.stat-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat-sub{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+.reset-btn{font-size:12px;color:var(--color-text-secondary);background:none;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:5px 12px;cursor:pointer;margin-bottom:1rem}
+.reset-btn:hover{background:var(--color-background-secondary)}
+.level-block{margin-bottom:1.5rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.level-header{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.level-header:hover{background:var(--color-background-secondary)}
+.level-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.level-title{font-size:15px;font-weight:500;color:var(--color-text-primary);flex:1}
+.level-badge{font-size:12px;padding:3px 10px;border-radius:var(--border-radius-md);font-weight:500}
+.chevron{font-size:12px;color:var(--color-text-secondary);transition:transform 0.2s}
+.chevron.open{transform:rotate(90deg)}
+.level-body{display:none;border-top:0.5px solid var(--color-border-tertiary)}
+.level-body.open{display:block}
+.topic-block{border-bottom:0.5px solid var(--color-border-tertiary)}
+.topic-block:last-child{border-bottom:none}
+.topic-header{padding:10px 16px;font-size:13px;font-weight:500;color:var(--color-text-secondary);background:var(--color-background-secondary)}
+.q-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px;padding:10px 16px}
+.q-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;transition:border-color 0.15s}
+.q-card:hover{border-color:var(--color-border-primary)}
+.q-card.done{background:var(--color-background-success);border-color:var(--color-border-success)}
+.q-left{display:flex;flex-direction:column;gap:3px;flex:1}
+.q-text{font-size:12px;color:var(--color-text-primary);line-height:1.4}
+.q-card.done .q-text{color:var(--color-text-success)}
+.lc-badge{font-size:11px;color:var(--color-text-info);background:var(--color-background-info);border-radius:4px;padding:1px 6px;display:inline-block;width:fit-content}
+.q-card.done .lc-badge{color:var(--color-text-success);background:var(--color-background-success)}
+.no-lc{font-size:11px;color:var(--color-text-tertiary)}
+.q-num{font-size:11px;color:var(--color-text-tertiary);font-weight:500;flex-shrink:0;margin-top:1px}
+.q-card.done .q-num{color:var(--color-text-success)}
+.progress-bar-wrap{padding:10px 16px 12px;background:var(--color-background-secondary);border-top:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:10px}
+.progress-bar-bg{flex:1;height:6px;background:var(--color-border-tertiary);border-radius:99px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:99px;transition:width 0.3s}
+.progress-label{font-size:12px;color:var(--color-text-secondary);white-space:nowrap}
+</style>
+
+<div class="wrap">
+<div class="top-stats">
+  <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val" id="s-done">0</div><div class="stat-sub">questions</div></div>
+  <div class="stat-card"><div class="stat-label">Remaining</div><div class="stat-val" id="s-left">87</div><div class="stat-sub">questions</div></div>
+  <div class="stat-card"><div class="stat-label">Progress</div><div class="stat-val" id="s-pct">0%</div><div class="stat-sub">overall</div></div>
+</div>
+<button class="reset-btn" onclick="resetAll()">Reset all progress</button>
+<div id="levels"></div>
+</div>
+
+<script>
+const DATA=[
+{id:"l1",label:"Level 1 — Easy",dot:"#639922",badge:"Must Do",badgeBg:"#EAF3DE",badgeColor:"#3B6D11",barColor:"#639922",topics:[
+  {name:"Basic array operations",qs:[
+    {t:"Find largest element",lc:1672},
+    {t:"Find smallest element",lc:null},
+    {t:"Find second largest",lc:414},
+    {t:"Find second smallest",lc:null},
+    {t:"Reverse an array",lc:344},
+    {t:"Check if array is sorted",lc:1752},
+    {t:"Remove duplicates from sorted array",lc:26},
+    {t:"Move zeros to end",lc:283},
+    {t:"Left rotate by 1",lc:null},
+    {t:"Left rotate by k places",lc:189}
+  ]},
+  {name:"Searching",qs:[
+    {t:"Linear search",lc:null},
+    {t:"Binary search",lc:704},
+    {t:"First and last position of element",lc:34},
+    {t:"Count occurrences in sorted array",lc:null},
+    {t:"Element appearing once (others twice)",lc:136}
+  ]},
+  {name:"Math on arrays",qs:[
+    {t:"Sum of array",lc:null},
+    {t:"Max subarray sum (Kadane's)",lc:53},
+    {t:"Find missing number 1 to n",lc:268},
+    {t:"Find duplicate number",lc:287},
+    {t:"Intersection of two arrays",lc:349},
+    {t:"Union of two arrays",lc:null},
+    {t:"Majority element (> n/2 times)",lc:169}
+  ]},
+  {name:"Two pointer easy",qs:[
+    {t:"Pair with given sum (sorted)",lc:167},
+    {t:"Reverse using two pointers",lc:344},
+    {t:"Check palindrome array",lc:125},
+    {t:"Merge two sorted arrays",lc:88},
+    {t:"Remove element in-place",lc:27}
+  ]}
+]},
+{id:"l2",label:"Level 2 — Medium",dot:"#EF9F27",badge:"Important",badgeBg:"#FAEEDA",badgeColor:"#854F0B",barColor:"#EF9F27",topics:[
+  {name:"Sliding window",qs:[
+    {t:"Max sum subarray size k",lc:643},
+    {t:"Min sum subarray size k",lc:null},
+    {t:"Longest subarray sum = k",lc:325},
+    {t:"Longest subarray sum <= k",lc:null},
+    {t:"Max ones after flipping k zeros",lc:1004},
+    {t:"Min size subarray sum >= target",lc:209},
+    {t:"Count subarrays sum = k",lc:560},
+    {t:"Longest subarray equal 0s and 1s",lc:525}
+  ]},
+  {name:"Prefix sum",qs:[
+    {t:"Range sum query",lc:303},
+    {t:"Equilibrium index",lc:724},
+    {t:"Subarray sum equals k",lc:560},
+    {t:"Find pivot index",lc:724},
+    {t:"Running sum of array",lc:1480},
+    {t:"Product of array except self",lc:238},
+    {t:"Count subarrays with given sum",lc:null}
+  ]},
+  {name:"Two pointer medium",qs:[
+    {t:"Three sum (triplets = 0)",lc:15},
+    {t:"Four sum",lc:18},
+    {t:"Container with most water",lc:11},
+    {t:"Trapping rain water",lc:42},
+    {t:"Sort 0s 1s 2s (Dutch flag)",lc:75},
+    {t:"Find pair with difference = k",lc:532},
+    {t:"Count pairs with given sum",lc:null},
+    {t:"Merge intervals",lc:56}
+  ]},
+  {name:"Sorting medium",qs:[
+    {t:"Sort 0s 1s 2s without sort()",lc:75},
+    {t:"Merge two sorted arrays no space",lc:88},
+    {t:"Find kth largest element",lc:215},
+    {t:"Find kth smallest element",lc:230},
+    {t:"Sort array by frequency",lc:1636},
+    {t:"Minimum platforms (trains)",lc:null},
+    {t:"Activity selection problem",lc:null},
+    {t:"Overlapping intervals",lc:56}
+  ]},
+  {name:"Array manipulation",qs:[
+    {t:"Rotate array by k (right)",lc:189},
+    {t:"Find all duplicates",lc:442},
+    {t:"Find disappeared numbers",lc:448},
+    {t:"Next permutation",lc:31},
+    {t:"Jump game (reach end?)",lc:55},
+    {t:"Jump game 2 (min jumps)",lc:45},
+    {t:"Buy sell stock 1",lc:121},
+    {t:"Buy sell stock 2",lc:122},
+    {t:"Max product subarray",lc:152},
+    {t:"Spiral matrix traversal",lc:54},
+    {t:"Set matrix zeros",lc:73},
+    {t:"Pascal triangle",lc:118}
+  ]}
+]},
+{id:"l3",label:"Level 3 — Hard",dot:"#D85A30",badge:"FAANG",badgeBg:"#FAECE7",badgeColor:"#993C1D",barColor:"#D85A30",topics:[
+  {name:"Advanced sliding window",qs:[
+    {t:"Minimum window substring",lc:76},
+    {t:"Sliding window maximum",lc:239},
+    {t:"Longest subarray at most k distinct",lc:340},
+    {t:"Subarrays with k different integers",lc:992}
+  ]},
+  {name:"Advanced two pointer",qs:[
+    {t:"Trapping rain water (two pointer)",lc:42},
+    {t:"Min operations make array equal",lc:1551},
+    {t:"3Sum closest",lc:16}
+  ]},
+  {name:"Advanced sorting",qs:[
+    {t:"Merge sort implementation",lc:912},
+    {t:"Quick sort implementation",lc:912},
+    {t:"Count inversions in array",lc:null},
+    {t:"Median of two sorted arrays",lc:4}
+  ]},
+  {name:"Advanced array",qs:[
+    {t:"Max sum circular subarray",lc:918},
+    {t:"Longest increasing subsequence",lc:300},
+    {t:"Largest rectangle in histogram",lc:84},
+    {t:"Max sum rectangle 2D matrix",lc:363},
+    {t:"First missing positive",lc:41},
+    {t:"Count subarrays XOR = k",lc:null}
+  ]}
+]}
+];
+
+const SK="dsa_lc_v1";
+let done=new Set(JSON.parse(localStorage.getItem(SK)||"[]"));
+function save(){try{localStorage.setItem(SK,JSON.stringify([...done]));}catch(e){}}
+function totalQ(){return DATA.reduce((a,l)=>a+l.topics.reduce((b,t)=>b+t.qs.length,0),0);}
+function updateStats(){
+  const total=totalQ(),d=done.size;
+  document.getElementById("s-done").textContent=d;
+  document.getElementById("s-left").textContent=total-d;
+  document.getElementById("s-pct").textContent=Math.round(d/total*100)+"%";
+  DATA.forEach(level=>{
+    const bar=document.getElementById("bar-"+level.id);
+    const lbl=document.getElementById("lbl-"+level.id);
+    if(!bar)return;
+    const lqs=level.topics.reduce((a,t)=>a+t.qs.length,0);
+    const ld=level.topics.reduce((a,t)=>a+t.qs.filter(q=>done.has(level.id+q.t)).length,0);
+    bar.style.width=lqs?Math.round(ld/lqs*100)+"%":"0%";
+    lbl.textContent=ld+"/"+lqs;
+  });
+}
+function resetAll(){done.clear();save();renderAll();}
+function toggleCard(cardId,qkey){
+  if(done.has(qkey))done.delete(qkey);else done.add(qkey);
+  save();
+  const el=document.getElementById(cardId);
+  if(el)el.classList.toggle("done",done.has(qkey));
+  updateStats();
+}
+function toggleLevel(id){
+  document.getElementById("body-"+id).classList.toggle("open");
+  document.getElementById("chev-"+id).classList.toggle("open");
+}
+function renderAll(){
+  const container=document.getElementById("levels");
+  container.innerHTML="";
+  DATA.forEach(level=>{
+    const block=document.createElement("div");
+    block.className="level-block";
+    const lqs=level.topics.reduce((a,t)=>a+t.qs.length,0);
+    block.innerHTML=`
+      <div class="level-header" onclick="toggleLevel('${level.id}')">
+        <div class="level-dot" style="background:${level.dot}"></div>
+        <span class="level-title">${level.label}</span>
+        <span class="level-badge" style="background:${level.badgeBg};color:${level.badgeColor}">${level.badge}</span>
+        <span class="chevron" id="chev-${level.id}">▶</span>
+      </div>
+      <div class="level-body" id="body-${level.id}">
+        ${level.topics.map(topic=>`
+          <div class="topic-block">
+            <div class="topic-header">${topic.name}</div>
+            <div class="q-grid">
+              ${topic.qs.map((q,i)=>{
+                const qkey=level.id+q.t;
+                const cardId="q-"+qkey.replace(/[^a-zA-Z0-9]/g,"_");
+                const isDone=done.has(qkey);
+                const lcTag=q.lc
+                  ?`<a href="https://leetcode.com/problems/" onclick="window.open('https://leetcode.com/problemset/?search=${q.lc}');return false;" class="lc-badge">LC #${q.lc}</a>`
+                  :`<span class="no-lc">practice only</span>`;
+                return `<div class="q-card ${isDone?"done":""}" id="${cardId}" onclick="toggleCard('${cardId}','${qkey.replace(/'/g,"\\'")}')">
+                  <span class="q-num">${i+1}</span>
+                  <div class="q-left">
+                    <span class="q-text">${q.t}</span>
+                    ${lcTag}
+                  </div>
+                </div>`;
+              }).join("")}
+            </div>
+          </div>
+        `).join("")}
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-${level.id}" style="background:${level.dot};width:0%"></div></div>
+          <span class="progress-label" id="lbl-${level.id}">0/${lqs}</span>
+        </div>
+      </div>`;
+    container.appendChild(block);
+  });
+  updateStats();
+}
+renderAll();
+</script>
+</body></html>
