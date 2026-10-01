@@ -242,7 +242,7 @@ vw.addEventListener("click",function(e){if(e.target===vw)vw.close()});
 
 /* DSA sheets */
 var sh=$("sheet"),fr=$("fr");
-document.querySelectorAll(".try").forEach(function(b){b.addEventListener("click",function(){
+document.querySelectorAll("button.try").forEach(function(b){b.addEventListener("click",function(){
 var u=b.dataset.s+".html";fr.src=u;$("sl").href=u;$("st").textContent=b.dataset.t;sh.showModal()})});
 function shut(){sh.close()}
 sh.addEventListener("close",function(){fr.removeAttribute("src")});
