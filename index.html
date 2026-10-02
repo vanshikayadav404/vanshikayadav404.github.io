@@ -4,7 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vanshika Yadav | Cloud & DevOps</title>
-<meta name="description" content="Second-year B.Tech student specializing in Cloud and DevOps. Learning AWS, Linux, Docker and DSA. Also draws.">
+<meta name="description" content="Second-year B.Tech student specializing in Cloud and DevOps. Built a Dockerized Node.js API. Learning AWS, Linux and DSA. Also draws.">
+<meta property="og:title" content="Vanshika Yadav | Cloud &amp; DevOps">
+<meta property="og:description" content="Second-year B.Tech student specializing in Cloud and DevOps. Built a Dockerized Node.js API. Learning AWS, Linux and DSA.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vanshikayadav404.github.io/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%98%81%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:wght@400;600&display=swap" rel="stylesheet">
@@ -83,12 +88,22 @@ dialog::backdrop{background:rgba(5,6,7,.85)}
 .x{background:#fff;color:#111;border:0;border-radius:2rem;padding:.3rem .9rem;font-weight:500;cursor:pointer}
 #view .x{position:absolute;top:.5rem;right:.5rem}
 footer{padding:2rem 0 3rem;color:var(--mute);font-size:1rem;border-top:1px solid var(--line)}
+.proj{grid-column:1/-1}
+.proj-top{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center}
+.badge{font:700 .75rem var(--head);color:var(--green);border:1px solid var(--green);border-radius:2rem;padding:.05rem .65rem}
+.links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.25rem}
+.proj details{border-top:1px solid var(--line);padding-top:.7rem;margin-top:.4rem}
+.proj summary{cursor:pointer;font:700 .95rem var(--head)}
+.proj summary:hover{color:var(--red)}
+.proj h4{font:700 .95rem var(--head);margin:1rem 0 .2rem}
+.proj .notes{margin:.3rem 0 0;padding-left:1.1rem;color:var(--mute);font-size:1rem;line-height:1.5}
+.proj .notes li{margin:.25rem 0}
 </style>
 </head>
 <body>
 <div class="wrap">
 <nav aria-label="Main">
-<a href="#skills">Skills</a><a href="#art">Sketchbook</a><a href="#code">Code</a><a href="#dsa">DSA practice</a><a href="#education">Education</a><a href="#contact">Contact</a>
+<a href="#skills">Skills</a><a href="#projects">Projects</a><a href="#art">Sketchbook</a><a href="#code">Code</a><a href="#dsa">DSA practice</a><a href="#education">Education</a><a href="#contact">Contact</a>
 <button id="theme" type="button" aria-label="Switch between dark and light theme">Light mode</button>
 </nav>
 
@@ -100,9 +115,9 @@ footer{padding:2rem 0 3rem;color:var(--mute);font-size:1rem;border-top:1px solid
 <a class="stat" href="https://leetcode.com/u/vanshikayadav404/"><b>200+</b> LeetCode problems solved</a>
 <div class="cta">
 <a class="btn" data-resume href="Vanshika_Yadav_Resume.pdf" target="_blank" rel="noopener">Download resume</a>
-<a href="https://github.com/vanshikayadav404" target="_blank" rel="noopener">GitHub</a>
-<a href="https://www.linkedin.com/in/vanshikayadav-973b37315/" target="_blank" rel="noopener">LinkedIn</a>
-<a href="https://leetcode.com/u/vanshikayadav404/" target="_blank" rel="noopener">LeetCode</a>
+<a href="https://github.com/vanshikayadav404">GitHub</a>
+<a href="https://www.linkedin.com/in/vanshika-yadav-973b37315/">LinkedIn</a>
+<a href="https://leetcode.com/u/vanshikayadav404/">LeetCode</a>
 </div>
 </div>
 <div class="term" role="group" aria-label="Interactive terminal">
@@ -116,10 +131,40 @@ footer{padding:2rem 0 3rem;color:var(--mute);font-size:1rem;border-top:1px solid
 <h2>Skills</h2>
 <p class="grp">Programming</p><ul class="chips"><li>Java</li><li>C</li></ul>
 <p class="grp">Web</p><ul class="chips"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
-<p class="grp">Cloud and operating system</p><ul class="chips"><li>AWS</li><li>Linux</li></ul>
+<p class="grp">Cloud and operating system</p><ul class="chips"><li>AWS</li><li>Docker</li><li>Linux</li></ul>
 <p class="grp">Languages</p><ul class="chips"><li>English</li><li>Hindi</li></ul>
-<p class="grp">Currently learning</p><ul class="chips"><li class="learn">AWS</li><li class="learn">Linux</li><li class="learn">Docker</li><li class="learn">DSA</li></ul>
+<p class="grp">Currently learning</p><ul class="chips"><li class="learn">AWS</li><li class="learn">Linux</li><li class="learn">DSA</li></ul>
 <p class="grp">Certification goal</p><ul class="chips"><li class="learn">AWS Certified Cloud Practitioner</li></ul>
+</section>
+
+<section id="projects">
+<h2>Projects</h2>
+<p class="intro">My first cloud and DevOps project. I built it step by step to understand how containers work.</p>
+<div class="cards">
+<div class="card proj">
+<div class="proj-top"><h3>Notes API in Docker</h3><span class="badge">Done</span></div>
+<p>A small REST API built with Node.js and Express, packaged as a Docker image and run with Docker Compose. It has a health check and a restart policy, and the image is published on Docker Hub (48.4 MB compressed).</p>
+<ul class="chips"><li>Docker</li><li>Docker Compose</li><li>Node.js</li><li>Express</li><li>Docker Hub</li><li>Git</li></ul>
+<div class="links"><a class="try" href="https://github.com/vanshikayadav404/notes-api-docker" target="_blank" rel="noopener">View on GitHub</a><a class="try" href="https://hub.docker.com/r/vanshikayadav404/notes-api" target="_blank" rel="noopener">Docker Hub image</a></div>
+<details>
+<summary>What I learned and what went wrong</summary>
+<h4>What I learned</h4>
+<ul class="notes">
+<li>The difference between an image and a container, and how Dockerfile layers are cached.</li>
+<li>Port mapping, environment variables, and running the app as a non-root user.</li>
+<li>How Compose adds a health check and a restart policy.</li>
+</ul>
+<h4>Problems I hit</h4>
+<ul class="notes">
+<li>A restart policy did not bring back a container I killed by hand. Docker treats that as a manual stop, so the policy only covers crashes and reboots.</li>
+<li>My first push to GitHub was rejected because the new repo already had a starter commit. I replaced it with my local history.</li>
+<li>My README lost its Markdown formatting when saved from Notepad. I fixed it by editing in GitHub.</li>
+</ul>
+<h4>Known limit</h4>
+<ul class="notes"><li>Notes are kept in memory, so they are lost on restart. Adding a database with a volume is the next step.</li></ul>
+</details>
+</div>
+</div>
 </section>
 
 <section id="art">
@@ -189,10 +234,11 @@ var out=$("out"),inp=$("in"),hist=[],hi=0,calm=matchMedia("(prefers-reduced-moti
 function print(s,c){var d=document.createElement("div");if(c)d.className=c;if(s&&s.html)d.innerHTML=s.html;else d.textContent=s;out.appendChild(d);out.scrollTop=out.scrollHeight}
 var mail='vanshivikram2006@gmail.com';
 var C={
-help:function(){print("Commands: whoami, skills, learning, art, dsa, resume, contact, clear")},
+help:function(){print("Commands: whoami, skills, learning, projects, art, dsa, resume, contact, clear")},
 whoami:function(){print("Vanshika Yadav, aspiring Cloud & DevOps engineer.\nSecond-year B.Tech CSE (Cloud and DevOps), GLA University, Mathura.")},
-skills:function(){print("programming  Java, C\nweb          HTML, CSS, JavaScript\ncloud        AWS\nos           Linux")},
-learning:function(){print("AWS, Linux, Docker, DSA\ngoal: AWS Certified Cloud Practitioner")},
+skills:function(){print("programming  Java, C\nweb          HTML, CSS, JavaScript\ncloud        AWS, Docker\nos           Linux")},
+learning:function(){print("AWS, Linux, DSA\ngoal: AWS Certified Cloud Practitioner")},
+projects:function(){print({html:'Notes API in Docker (Node.js, Docker Compose)\n<a href="https://github.com/vanshikayadav404/notes-api-docker" target="_blank" rel="noopener">github</a>  <a href="https://hub.docker.com/r/vanshikayadav404/notes-api" target="_blank" rel="noopener">docker hub</a>'});go("projects")},
 art:function(){print("Opening the sketchbook...","dim");go("art")},
 dsa:function(){print("Opening DSA practice...","dim");go("dsa")},
 resume:function(){print({html:'<a data-resume href="Vanshika_Yadav_Resume.pdf" target="_blank" rel="noopener">Vanshika_Yadav_Resume.pdf</a>'})},
@@ -243,7 +289,7 @@ vw.addEventListener("click",function(e){if(e.target===vw)vw.close()});
 /* DSA sheets */
 var sh=$("sheet"),fr=$("fr");
 document.querySelectorAll("button.try").forEach(function(b){b.addEventListener("click",function(){
-var u=b.dataset.s+".html";fr.src=u;$("sl").href=u;$("st").textContent=b.dataset.t;sh.showModal()})});
+var u="sheets/"+b.dataset.s+".html";fr.src=u;$("sl").href=u;$("st").textContent=b.dataset.t;sh.showModal()})});
 function shut(){sh.close()}
 sh.addEventListener("close",function(){fr.removeAttribute("src")});
 $("sx").addEventListener("click",shut);
